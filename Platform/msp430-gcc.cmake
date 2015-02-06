@@ -45,7 +45,7 @@ FUNCTION(add_msp430_executable EXECUTABLE_NAME DEPENDENCIES)
 		ENDIF(DDEPS)
 		
 		ADD_CUSTOM_TARGET(
-			${EXE_NAME}-${device}.lst ALL
+			${EXE_NAME}-${device}.lst
 			${MSP430_OBJDUMP} -h -S ${ELF_FILE} > ${LST_FILE}
 			DEPENDS ${ELF_FILE}
 			)
