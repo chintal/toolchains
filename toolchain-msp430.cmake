@@ -43,7 +43,7 @@ ENDIF(NOT CMAKE_BUILD_TYPE)
 
 set(MSPGCC_OPT_LEVEL 	"0" CACHE STRING "MSPGCC OPT LEVEL")
 
-set(MSPGCC_WARN_PROFILE "-Wall -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wsign-compare -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wunused"
+set(MSPGCC_WARN_PROFILE "-Wall -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wsign-compare -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wunused"
 				CACHE STRING "MSPGCC WARNINGS")	
 
 set(MSPGCC_OPTIONS 	"-fdata-sections -ffunction-sections" 
