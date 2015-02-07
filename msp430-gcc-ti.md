@@ -32,3 +32,6 @@ Installing the MSP430-GCC-TI toolchain
     - `mspdebug` location etc. should be crosschecked, since TI gcc installation
       does not install `mspdebug`
 
+^[To convert this file to `pdf`, use `pandoc README.md -o README.pdf`. See 
+<http://johnmacfarlane.net/pandoc/README.html> for further information>
+
