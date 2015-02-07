@@ -33,5 +33,5 @@ Installing the MSP430-GCC-TI toolchain
       does not install `mspdebug`
 
 ^[To convert this file to `pdf`, use `pandoc README.md -o README.pdf`. See 
-<http://johnmacfarlane.net/pandoc/README.html> for further information>]
+<http://johnmacfarlane.net/pandoc/README.html> for further information]
 
