@@ -14,15 +14,18 @@ set(CMAKE_SYSTEM_NAME msp430-gcc)
 # Compiler and related toochain configuration
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+SET(TOOLCHAIN_PREFIX		msp430)
+
 # This can be skipped to directly set paths below, or augmented with hints
 # and such. See cmake docs of FIND_PROGRAM for details.
-FIND_PROGRAM(MSP430_CC		msp430-gcc)
-FIND_PROGRAM(MSP430_CXX		msp430-g++)
-FIND_PROGRAM(MSP430_AR		msp430-ar)
-FIND_PROGRAM(MSP430_AS		msp430-as)
-FIND_PROGRAM(MSP430_OBJDUMP	msp430-objdump)
-FIND_PROGRAM(MSP430_OBJCOPY	msp430-objcopy)
-FIND_PROGRAM(MSP430_SIZE	msp430-size)
+FIND_PROGRAM(MSP430_CC		${TOOLCHAIN_PREFIX}-gcc)
+FIND_PROGRAM(MSP430_CXX		${TOOLCHAIN_PREFIX}-g++)
+FIND_PROGRAM(MSP430_AR		${TOOLCHAIN_PREFIX}-ar)
+FIND_PROGRAM(MSP430_AS		${TOOLCHAIN_PREFIX}-as)
+FIND_PROGRAM(MSP430_OBJDUMP	${TOOLCHAIN_PREFIX}-objdump)
+FIND_PROGRAM(MSP430_OBJCOPY	${TOOLCHAIN_PREFIX}-objcopy)
+FIND_PROGRAM(MSP430_SIZE	${TOOLCHAIN_PREFIX}-size)
+FIND_PROGRAM(MSP430_NM		${TOOLCHAIN_PREFIX}-nm)
 FIND_PROGRAM(MSP430_MSPDEBUG	mspdebug)
 
 # Since compiler need a -mmcu flag to do anything, checks need to be bypassed
