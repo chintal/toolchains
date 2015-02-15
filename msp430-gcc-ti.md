@@ -155,6 +155,8 @@ Debugging using the LP5529 on-board device:
     
     # load <filename> may also work
     # Reset the device by reconnecting to the target.
+    # Note that this isn't equivalent to a power on reset. General RAM is not 
+    # cleared. .bss may or may not be cleared (haven't checked).
     
     (gdb) target remote :55000
     A program is being debugged already.  Kill it? (y or n) y
