@@ -31,6 +31,8 @@ Installing the MSP430-GCC-TI toolchain
     - `MSP430_TI_COMPILER_FOLDER` : Path of TI GCC installation
     - `mspdebug` location etc. should be crosschecked, since TI gcc installation
       does not install `mspdebug`
+    - Set the correct `CMAKE_MODULE_PATH` (to your toolchains folder) so that 
+      cmake can find toolchains/Platforms.
 
 * Add the toolchain to your PATH by appending the following to `~/.bashrc`:
 
