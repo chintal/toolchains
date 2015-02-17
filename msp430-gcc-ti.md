@@ -228,7 +228,7 @@ Installing 64-bit libmsp430.so v3
     ~~~
     
 * Copy the necessary files to the MSPDebug ThirdParty folder. 
-    - `hidapi/hidapi`.h to `ThirdPary/include` 
+    - `hidapi/hidapi.h` to `ThirdPary/include` 
     - `linux/hid-libusb.o` to `ThirdParty/lib`
 
 * Edit `Makefile` in MSPDebug root folder and add `-static` to the CFLAGS. 
