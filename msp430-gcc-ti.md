@@ -195,22 +195,21 @@ Installing 64-bit libmsp430.so v3
     
 
 * According to the install docs, boost with BOOST_THREAD_PATCH is needed. Install
-  libboost-thread-dev and hope for the best. Building boost itself is a pain.
+  libboost-thread-dev and hope for the best. Building boost itself is a pain. 
+  (Running apt-get update and upgrade first is probably a good idea)
 
     ~~~
     $ sudo aptitude install libboost-thread-dev
     ~~~
 
-* Similarly for hidapi, required version is 0.7. Though Ubuntu 14.04 version is 0.8,
-  the makefile needs the .h and .o to be put into the source tree. Just follow the 
-  instructions in the README.
+* For hidapi, required version is 0.7. Though Ubuntu 14.04 version is 0.8,
+  the makefile needs the .h and .o to be put into the source tree. So obtain 
+  and build the sources instead of mucking around system hidapi.
 
     ~~~
     $ wget https://github.com/downloads/signal11/hidapi/hidapi-0.7.0.zip
     $ unzip hidapi-0.7.0.zip
     $ cd hidapi-0.7.0/linux
-    $ sudo aptitude update
-    $ sudo aptitude upgrade
     $ sudo apt-get install libusb-1.0-0-dev libudev-dev
     ~~~
     
