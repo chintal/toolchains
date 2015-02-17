@@ -32,7 +32,7 @@ FUNCTION(add_msp430_executable EXECUTABLE_NAME DEPENDENCIES)
 		SET_TARGET_PROPERTIES(
 			${ELF_FILE} PROPERTIES
 			COMPILE_FLAGS "-mmcu=${device}"
-			LINK_FLAGS "-mmcu=${device} -Wl,-Map,${MAP_FILE}"
+			LINK_FLAGS "-mmcu=${device} -Wl,-Map,${MAP_FILE}  ${EXTRA_LINKER_FLAGS} -T ${MSP430_TI_COMPILER_FOLDER}/include/${device}.ld"
 			)
 		
 		SET(DDEPS ${DEPS})
@@ -116,7 +116,7 @@ FUNCTION(add_msp430_library LIBRARY_NAME LIBRARY_TYPE DEPENDENCIES)
 		SET_TARGET_PROPERTIES(
 				${LIB_DNAME} PROPERTIES
 				COMPILE_FLAGS "-mmcu=${device}"
-				LINK_FLAGS "-mmcu=${device}"
+				LINK_FLAGS "-mmcu=${device} ${EXTRA_LINKER_FLAGS} -T ${MSP430_TI_COMPILER_FOLDER}/include/${device}.ld"
 			)
 		
 		SET(DDEPS ${DEPS})
