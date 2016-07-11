@@ -11,7 +11,7 @@ endmacro(LIST_REPLACE)
 # disassembly listings, size outputs, map files, and to upload to device. 
 # Also adds all these extra files created including map files to the clean
 # list.
-FUNCTION(add_msp430_executable EXECUTABLE_NAME DEPENDENCIES)
+FUNCTION(add_platform_executable EXECUTABLE_NAME DEPENDENCIES)
 	SET(DEVICES ${SUPPORTED_DEVICES})
 	
 	SET(EXE_NAME ${EXECUTABLE_NAME})
@@ -39,14 +39,14 @@ FUNCTION(add_msp430_executable EXECUTABLE_NAME DEPENDENCIES)
 		
 		IF(DDEPS)
 		    LIST(REMOVE_DUPLICATES DDEPS)
-		FOREACH(dep ${DDEPS})
+                    FOREACH(dep ${DDEPS})
 			LIST_REPLACE(DDEPS "${dep}" "${dep}-${device}")
-		ENDFOREACH(dep)
+                    ENDFOREACH(dep)
 		    TARGET_LINK_LIBRARIES(${ELF_FILE} ${DDEPS})
 		ENDIF(DDEPS)
 		
 		ADD_CUSTOM_TARGET(
-			${EXE_NAME}-${device}.lst
+			${EXE_NAME}-${device}.lst ALL
 			${MSP430_OBJDUMP} -h -S ${ELF_FILE} > ${LST_FILE}
 			DEPENDS ${ELF_FILE}
 			)
@@ -59,7 +59,7 @@ FUNCTION(add_msp430_executable EXECUTABLE_NAME DEPENDENCIES)
 			
 		ADD_CUSTOM_TARGET(
 			${EXE_NAME}-${device}.sym ALL
-			${MSP430_NM} -a -S -s --size-sort ${ELF_FILE} > ${SYM_FILE}
+			${MSP430_NM} -l -a -S -s --size-sort ${ELF_FILE} > ${SYM_FILE}
 			DEPENDS ${ELF_FILE}
 			)
 
@@ -90,11 +90,11 @@ FUNCTION(add_msp430_executable EXECUTABLE_NAME DEPENDENCIES)
 	SET_DIRECTORY_PROPERTIES(PROPERTIES 
 		ADDITIONAL_MAKE_CLEAN_FILES "${clean_files}"
 	)
-ENDFUNCTION(add_msp430_executable)
+ENDFUNCTION(add_platform_executable)
 
 # Wrapper around ADD_LIBRARY, which adds the necessary -mmcu flags and
 # sets up builds for multiple devices. 
-FUNCTION(add_msp430_library LIBRARY_NAME LIBRARY_TYPE DEPENDENCIES)
+FUNCTION(add_platform_library LIBRARY_NAME LIBRARY_TYPE DEPENDENCIES)
 	SET(DEVICES ${SUPPORTED_DEVICES})
 	
 	SET(LIB_NAME ${LIBRARY_NAME})
@@ -126,10 +126,9 @@ FUNCTION(add_msp430_library LIBRARY_NAME LIBRARY_TYPE DEPENDENCIES)
 		IF(DDEPS)
 		    TARGET_LINK_LIBRARIES(${LIB_DNAME} ${DDEPS})
 		ENDIF(DDEPS)
-		
 		ADD_CUSTOM_TARGET(
 			${SYM_FILE} ALL
-			${MSP430_NM} -a -S -s --size-sort ${LIB_FILE} > ${SYM_FILE}
+			${MSP430_NM} -l -a -S -s --size-sort ${LIB_FILE} > ${SYM_FILE}
 			DEPENDS ${ELF_FILE}
 			)
 	ENDFOREACH(device)
@@ -139,4 +138,26 @@ FUNCTION(add_msp430_library LIBRARY_NAME LIBRARY_TYPE DEPENDENCIES)
 	SET_DIRECTORY_PROPERTIES(PROPERTIES 
 		ADDITIONAL_MAKE_CLEAN_FILES "${clean_files}"
 	)
-ENDFUNCTION(add_msp430_library)
+ENDFUNCTION(add_platform_library)
+
+MACRO(install_file_tree LOCATION)
+    FOREACH(ifile ${ARGN})
+        FILE(RELATIVE_PATH rel ${PUBLIC_INCLUDE_DIRECTORY} ${ifile})
+        GET_FILENAME_COMPONENT( dir ${rel} DIRECTORY )
+        INSTALL(FILES ${ifile} DESTINATION ${LOCATION}/${dir})
+    ENDFOREACH(ifile)
+ENDMACRO(install_file_tree)
+
+MACRO(install_platform_library LIBRARY_NAME)
+	FOREACH(device ${SUPPORTED_DEVICES})
+	    INSTALL(TARGETS ${LIBRARY_NAME}-${device} DESTINATION lib/${LIBRARY_NAME} EXPORT ${LIBRARY_NAME}-config)
+	    IF (PUBLIC_INCLUDE_DIRECTORY)
+	      TARGET_INCLUDE_DIRECTORIES(${LIBRARY_NAME}-${device} PUBLIC ${PLATFORM_PACKAGES_PATH}/include/${LIBRARY_NAME})
+	    ENDIF (PUBLIC_INCLUDE_DIRECTORY)
+	ENDFOREACH(device)
+	IF (PUBLIC_INCLUDE_DIRECTORY)
+	  INSTALL_FILE_TREE(include/${LIBRARY_NAME} ${ARGN})
+	ENDIF (PUBLIC_INCLUDE_DIRECTORY)
+	INSTALL(EXPORT ${LIBRARY_NAME}-config DESTINATION lib/cmake/${LIBRARY_NAME})
+ENDMACRO(install_platform_library)
+

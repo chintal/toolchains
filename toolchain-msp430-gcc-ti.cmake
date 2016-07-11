@@ -3,6 +3,10 @@ include(CMakeForceCompiler)
 
 # Add the location of your "toolchains" folder to the module path.
 list(APPEND CMAKE_MODULE_PATH "/home/chintal/code/toolchains")
+SET(PLATFORM_PACKAGES_PATH "/home/chintal/code/toolchains/packages")
+list(APPEND CMAKE_MODULE_PATH "${PLATFORM_PACKAGES_PATH}/lib/cmake")
+list(APPEND CMAKE_PREFIX_PATH "${PLATFORM_PACKAGES_PATH}/lib/cmake")
+
 
 # Name should be 'Generic' or something for which a 
 # Platform/<name>.cmake (or other derivatives thereof, see cmake docs)
@@ -43,7 +47,7 @@ FIND_PROGRAM(MSP430_NM		${TOOLCHAIN_PREFIX}-nm
 		PATHS ${TOOLCHAIN_BIN_PATH})
 FIND_PROGRAM(MSP430_MSPDEBUG	mspdebug)
 
-# Since compiler need a -mmcu flag to do anything, checks need to be bypassed
+# Since the compiler needs an -mmcu flag to do anything, checks need to be bypassed
 CMAKE_FORCE_C_COMPILER(${MSP430_CC} 	GNU)
 CMAKE_FORCE_CXX_COMPILER(${MSP430_CXX} 	GNU)
 
