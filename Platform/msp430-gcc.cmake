@@ -110,14 +110,15 @@ FUNCTION(add_platform_library LIBRARY_NAME LIBRARY_TYPE DEPENDENCIES)
 	FOREACH(device ${DEVICES})
 		SET(LIB_DNAME ${LIB_NAME}-${device})
 		SET(SYM_FILE ${LIB_DNAME}.sym)
+		SET(ASM_FILE ${LIB_DNAME}.s)
 		SET(LIB_FILE lib${LIB_DNAME}.a)
 		
 		ADD_LIBRARY(${LIB_DNAME} ${TYPE} ${ARGN})
 		SET_TARGET_PROPERTIES(
-				${LIB_DNAME} PROPERTIES
-				COMPILE_FLAGS "-mmcu=${device}"
-				LINK_FLAGS "-mmcu=${device} ${EXTRA_LINKER_FLAGS} -T ${MSP430_TI_COMPILER_FOLDER}/include/${device}.ld"
-			)
+                        ${LIB_DNAME} PROPERTIES
+                        COMPILE_FLAGS "-mmcu=${device}"
+                        LINK_FLAGS "-mmcu=${device} ${EXTRA_LINKER_FLAGS} -T ${MSP430_TI_COMPILER_FOLDER}/include/${device}.ld"
+                )
 		
 		SET(DDEPS ${DEPS})
 		FOREACH(dep ${DEPS})
@@ -130,11 +131,20 @@ FUNCTION(add_platform_library LIBRARY_NAME LIBRARY_TYPE DEPENDENCIES)
 			${SYM_FILE} ALL
 			${MSP430_NM} -l -a -S -s --size-sort ${LIB_FILE} > ${SYM_FILE}
 			DEPENDS ${ELF_FILE}
-			)
+		)
+                ADD_CUSTOM_TARGET(
+                        ${ASM_FILE} ALL
+                        ${MSP430_OBJDUMP} -h -D -f -l -S -a ${LIB_FILE} > ${ASM_FILE}
+                        DEPENDS ${ELF_FILE}
+                )
+                
+                LIST(APPEND     all_sym_files   ${SYM_FILE})
+                LIST(APPEND     all_asm_files   ${ASM_FILE})
 	ENDFOREACH(device)
 	
 	GET_DIRECTORY_PROPERTY(clean_files ADDITIONAL_MAKE_CLEAN_FILES)
 	LIST(APPEND clean_files ${all_sym_files})
+	LIST(APPEND clean_files ${all_asm_files})
 	SET_DIRECTORY_PROPERTIES(PROPERTIES 
 		ADDITIONAL_MAKE_CLEAN_FILES "${clean_files}"
 	)

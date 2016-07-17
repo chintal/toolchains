@@ -6,7 +6,10 @@ list(APPEND CMAKE_MODULE_PATH "/home/chintal/code/toolchains")
 SET(PLATFORM_PACKAGES_PATH "/home/chintal/code/toolchains/packages")
 list(APPEND CMAKE_MODULE_PATH "${PLATFORM_PACKAGES_PATH}/lib/cmake")
 list(APPEND CMAKE_PREFIX_PATH "${PLATFORM_PACKAGES_PATH}/lib/cmake")
+INCLUDE_DIRECTORIES("${PLATFORM_PACKAGES_PATH}/include ${INCLUDE_DIRECTORIES}")
 
+SET(SUPPORTED_DEVICES "msp430f5529;msp430f5521" 
+        CACHE STRING "Supported Target Devices")
 
 # Name should be 'Generic' or something for which a 
 # Platform/<name>.cmake (or other derivatives thereof, see cmake docs)
@@ -68,7 +71,7 @@ set(MSPGCC_OPT_LEVEL 	"0" CACHE STRING "MSPGCC OPT LEVEL")
 set(MSPGCC_WARN_PROFILE "-Wall -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wsign-compare -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wunused"
 				CACHE STRING "MSPGCC WARNINGS")	
 
-set(MSPGCC_OPTIONS 	"-fdata-sections -ffunction-sections" 
+set(MSPGCC_OPTIONS 	"-g -fdata-sections -ffunction-sections -fverbose-asm" 
 				CACHE STRING "MSPGCC OPTIONS")
 
 set(CMAKE_C_FLAGS 	"${MSPGCC_WARN_PROFILE} ${MSPGCC_OPTIONS} -O${MSPGCC_OPT_LEVEL}  -DGCC_MSP430" CACHE STRING "C Flags")
