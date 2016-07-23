@@ -72,9 +72,8 @@ Debugging using the LP5529 on-board device:
 * `gdb` throws some `python` errors during initialization. It seems to work fine anyway, 
   though at some point they should be looked into. 
 
-* Ideally, `insight` should be able to run as well. The python errors seem to be the
-  blocking issue there. Some TI docs suggest the `GUI`, presumably `insight`, is supported
-  on windows only.
+* Ideally, `insight` should be able to run as well. The python errors might be related. 
+  Some TI docs suggest the `GUI`, presumably `insight`, is supported on windows only.
 
 * Firmware issue : `mspdebug` and `msp430-elf-gdb` seem to require different `ezFET`
   firmware versions. This is fairly problematic, resulting in the need to reflash the 
@@ -148,14 +147,16 @@ Debugging using the LP5529 on-board device:
 
     ~~~
     (gdb) load
-      Loading section .data, size 0x6 lma 0x2400
-      Loading section .rodata, size 0x3c lma 0x4400
-      Loading section .lowtext, size 0x5e lma 0x443c
-      Loading section .text, size 0x1004 lma 0x449a
-      Loading section __reset_vector, size 0x2 lma 0xfffe
-      Start address 0x443c, load size 4262
-      Reading symbols from <some path>/firmware-msp430f5529.elf...done.
-      Transfer rate: 1 KB/sec, 473 bytes/write.
+    Loading section .rodata, size 0x8e lma 0x4400
+    Loading section .rodata2, size 0x50 lma 0x4490
+    Loading section .data, size 0x4 lma 0x44e0
+    Loading section .lowtext, size 0x66 lma 0x44e4
+    Loading section .text, size 0x111c lma 0x454a
+    Loading section __interrupt_vector_47, size 0x2 lma 0xffdc
+    Loading section __interrupt_vector_57, size 0x2 lma 0xfff0
+    Loading section __reset_vector, size 0x2 lma 0xfffe
+    Start address 0x44e4, load size 4714
+    Transfer rate: 4 KB/sec, 392 bytes/write.
     
     # load <filename> may also work
     # Reset the device by reconnecting to the target.
