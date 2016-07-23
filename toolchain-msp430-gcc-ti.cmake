@@ -21,7 +21,7 @@ set(CMAKE_SYSTEM_NAME msp430-gcc)
 # Compiler and related toochain configuration
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-SET(MSP430_TI_COMPILER_FOLDER	/opt/ti/gcc)
+SET(MSP430_TI_COMPILER_FOLDER	/opt/ti/msp430/gcc)
 SET(MSP430_TI_BIN_FOLDER	${MSP430_TI_COMPILER_FOLDER}/bin)
 SET(MSP430_TI_INCLUDE_FOLDER	${MSP430_TI_COMPILER_FOLDER}/include)
 SET(TOOLCHAIN_PREFIX		msp430-elf)

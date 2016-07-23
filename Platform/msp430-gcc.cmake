@@ -86,6 +86,7 @@ FUNCTION(add_platform_executable EXECUTABLE_NAME DEPENDENCIES)
 	GET_DIRECTORY_PROPERTY(clean_files ADDITIONAL_MAKE_CLEAN_FILES)
 	LIST(APPEND clean_files ${all_map_files})
 	LIST(APPEND clean_files ${all_lst_files})
+	LIST(APPEND clean_files ${all_elf_files})
 	LIST(APPEND clean_files ${all_sym_files})
 	SET_DIRECTORY_PROPERTIES(PROPERTIES 
 		ADDITIONAL_MAKE_CLEAN_FILES "${clean_files}"
@@ -128,21 +129,22 @@ FUNCTION(add_platform_library LIBRARY_NAME LIBRARY_TYPE DEPENDENCIES)
 		    TARGET_LINK_LIBRARIES(${LIB_DNAME} ${DDEPS})
 		ENDIF(DDEPS)
 		ADD_CUSTOM_TARGET(
-			${SYM_FILE} ALL
+			${SYM_FILE}
 			${MSP430_NM} -l -a -S -s --size-sort ${LIB_FILE} > ${SYM_FILE}
-			DEPENDS ${ELF_FILE}
+			DEPENDS ${LIB_DNAME}
 		)
                 ADD_CUSTOM_TARGET(
-                        ${ASM_FILE} ALL
+                        ${ASM_FILE}
                         ${MSP430_OBJDUMP} -h -D -f -l -S -a ${LIB_FILE} > ${ASM_FILE}
-                        DEPENDS ${ELF_FILE}
+                        DEPENDS ${LIB_DNAME}
                 )
-                
+                LIST(APPEND     all_lib_files   ${LIB_FILE})
                 LIST(APPEND     all_sym_files   ${SYM_FILE})
                 LIST(APPEND     all_asm_files   ${ASM_FILE})
 	ENDFOREACH(device)
 	
 	GET_DIRECTORY_PROPERTY(clean_files ADDITIONAL_MAKE_CLEAN_FILES)
+	LIST(APPEND clean_files ${all_lib_files})
 	LIST(APPEND clean_files ${all_sym_files})
 	LIST(APPEND clean_files ${all_asm_files})
 	SET_DIRECTORY_PROPERTIES(PROPERTIES 
@@ -170,4 +172,3 @@ MACRO(install_platform_library LIBRARY_NAME)
 	ENDIF (PUBLIC_INCLUDE_DIRECTORY)
 	INSTALL(EXPORT ${LIBRARY_NAME}-config DESTINATION lib/cmake/${LIBRARY_NAME})
 ENDMACRO(install_platform_library)
-

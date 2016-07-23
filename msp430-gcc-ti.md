@@ -2,12 +2,12 @@
 MSP430-GCC-TI Toolchain
 =======================
 
-The TI GCC (aka "msp430-gcc-opensource", aka "redhat-gcc for msp430") is newer 
+The TI GCC (aka "msp430-gcc-opensource", aka "Somnium GCC for msp430") is newer 
 than the GCC included with various mspgcc versions. Having the uC manufacturer
 actively support the compiler and toolchain is usually a good thing. Presumably, 
 it should also provide better support for TI's `driverlib` and hopefully for TI's 
 `USP-API`. For these reasons, using the TI msp430-gcc-opensource toolchain is the 
-preferred way for MSP430 development.
+preferred route for MSP430 development.
 
 Installing the MSP430-GCC-TI toolchain
 --------------------------------------
@@ -19,12 +19,12 @@ Installing the MSP430-GCC-TI toolchain
   install to system folders (installing to /opt)
     
     ~~~
-    $ chmod a+x msp430-gcc-full-linux-installer-3.2.2.0.run
-    $ sudo ./msp430-gcc-full-linux-installer-3.2.2.0.run
+    $ chmod a+x msp430-gcc-full-linux-installer-4.1.0.0.run
+    $ sudo ./msp430-gcc-full-linux-installer-4.1.0.0.run
     ~~~
     
-* Install the toolchain. Recommended location is `/opt/ti/gcc` unless there 
-  is a good reason to install it elsewhere.
+* Install the toolchain. Recommended location is `/opt/ti/msp430/gcc` unless you 
+  have a good reason to install it elsewhere.
 
 * Use the `toolchain-msp430-gcc-ti.cmake` toolchain file for cmake. The system
   specific changes that may need to be made are : 
@@ -37,7 +37,7 @@ Installing the MSP430-GCC-TI toolchain
 * Add the toolchain to your PATH by appending the following to `~/.bashrc`:
 
     ~~~
-    export PATH="/opt/ti/gcc/bin:${PATH}"
+    export PATH="/opt/ti/msp430/gcc/bin:${PATH}"
     ~~~
 
 
@@ -51,28 +51,26 @@ Debugging using the LP5529 on-board device:
   `PATH`, make sure to use the correct one (located in `/opt/ti/gcc/bin`)
 
     ~~~
-    $ gdb_agent_console /opt/ti/gcc/msp430.dat
+    $ gdb_agent_console /opt/ti/msp430/gcc/msp430.dat
     ~~~
 
 * Run `msp430-elf-gdb`. You should give it the `elf` file as well so that it knows
   the symbols. 
 
     ~~~
-    $ cd <build_folder>/application/
-    $ msp430-elf-gdb firmware-msp430f5529.elf 
+    $ cd <build_folder>
+    $ msp430-elf-gdb application/firmware-msp430f5529.elf 
     ... [GDB initialization output]
     (gdb) target remote :55000
     ... [Wait for firmware update]
-    (gdb) target remote :55000
-      Remote debugging using :55000
-      _start () at /opt/redhat/msp430-14r1-98/sources/tools/libgloss/msp430/crt0.S:36
-      36      /opt/redhat/msp430-14r1-98/sources/tools/libgloss/msp430/crt0.S: No such file or directory.
+    (gdb) target remote :55000 
+    Remote debugging using :55000
+    0x000044e4 in __crt0_start ()
     (gdb) 
     ~~~
 
-* `gdb` throws various not recognized errors (specifically `timeout`), as well as some 
-  scary `python` errors during initialization. It seems to work fine anyway, though at 
-  some point they should be looked into. 
+* `gdb` throws some `python` errors during initialization. It seems to work fine anyway, 
+  though at some point they should be looked into. 
 
 * Ideally, `insight` should be able to run as well. The python errors seem to be the
   blocking issue there. Some TI docs suggest the `GUI`, presumably `insight`, is supported
@@ -167,8 +165,8 @@ Debugging using the LP5529 on-board device:
     (gdb) target remote :55000
     A program is being debugged already.  Kill it? (y or n) y
     Remote debugging using :55000
-    _start () at /opt/redhat/msp430-14r1-98/sources/tools/libgloss/msp430/crt0.S:36
-    36      /opt/redhat/msp430-14r1-98/sources/tools/libgloss/msp430/crt0.S: No such file or directory.
+    0x000044e4 in __crt0_start ()
+    (gdb) 
     (gdb)
     ~~~
     
@@ -185,70 +183,65 @@ Debugging using the LP5529 on-board device:
   the primary build outputs in their respective build folder.
 
 
-Installing 64-bit libmsp430.so v3
----------------------------------
+Installing 64-bit libmsp430.so v3.8
+-----------------------------------
 
-* Get slac460k.zip from TI, containing MSP430.DLLv3.4.3.4 Open Source version, 
-  Released 11/24/2014
+* Get slac460r.zip from TI, containing MSP430.DLLv3.08.000.002 Open Source version, 
+  Released 02/24/2016
 
     <http://processors.wiki.ti.com/index.php/MSPDS_Open_Source_Package>
     
 
 * According to the install docs, boost with BOOST_THREAD_PATCH is needed. Install
-  libboost-thread-dev and hope for the best. Building boost itself is a pain. 
-  (Running apt-get update and upgrade first is probably a good idea)
+  libboost-thread-dev and hope for the best. Building boost itself is a pain. Version
+  3.08 also requires libboost-filesystem. (Running apt-get update and upgrade first 
+  is probably a good idea).
 
     ~~~
     $ sudo aptitude install libboost-thread-dev
+    $ sudo aptitude install libboost-filesystem-dev
+    $ sudo aptitude install libusb-1.0-0-dev libudev-dev
     ~~~
 
-* For hidapi, required version is 0.7. Though Ubuntu 14.04 version is 0.8,
-  the makefile needs the .h and .o to be put into the source tree. So obtain 
-  and build the sources instead of mucking around system hidapi.
+* For hidapi, required version is 0.8.0-rc1. Though Ubuntu 16.04 version is 
+  also 0.8.0-rc, the makefile needs the .h and .o to be put into the source 
+  tree. So obtain and build the sources instead of mucking around system hidapi.
 
     ~~~
-    $ wget https://github.com/downloads/signal11/hidapi/hidapi-0.7.0.zip
-    $ unzip hidapi-0.7.0.zip
-    $ cd hidapi-0.7.0/linux
-    $ sudo apt-get install libusb-1.0-0-dev libudev-dev
+    $ wget https://github.com/signal11/hidapi/archive/hidapi-0.8.0-rc1.zip
+    $ unzip hidapi-0.8.0-rc1.ziz
+    $ cd hidapi-0.8.0-rc1
     ~~~
-    
-* Edit the hidapi-0.7.0 makefile and add `-pthread -fPIC` to the CXXFLAGS and 
-  `-fPIC` to the CFLAGS. Make as usual. 
+
+* Compile with -fPIC for creating a 64-bit shared object. 
 
     ~~~
+    $ ./bootstrap
+    $ ./configure CFLAGS='-g -O2 -fPIC'
     $ make
     ~~~
-
-* Get sources and extract
+    
+* Get libmsp430 sources and extract
 
     ~~~
-    $ unzip slac460k.zip
-    $ cd MSPDebugStack_OS_Package/
+    $ unzip slac460k.zip -d MSPDebugStack
+    $ cd MSPDebugStack
     ~~~
     
 * Copy the necessary files to the MSPDebug ThirdParty folder. 
     - `hidapi/hidapi.h` to `ThirdPary/include` 
-    - `linux/hid-libusb.o` to `ThirdParty/lib`
+    - `libusb/hid.o` to `ThirdParty/lib64`
 
-* Edit `Makefile` in MSPDebug root folder and add `-static` to the CFLAGS. 
-  -static should have linked against crtbeginS and not crtbeginT, but that
-  bug isn't something that can be fixed. As a workaround, switch crtbeginT 
-  with crtbeginS. Switch them back after.
+* Edit the Makefile to point to the correct hidapi object. 
+    - Replace `HIDOBJ := $(LIBTHIRD)/hid-libusb.o` with `HIDOBJ := $(LIBTHIRD)/hid.o`
     
-    ~~~
-    $ cd /usr/lib/gcc/x86_64-linux-gnu/4.8.2
-    $ sudo cp crtbeginT.o crtbeginT.orig.o
-    $ sudo cp crtbeginS.o crtbeginT.o
-    ~~~
-    
-* Run `make` as usual, and install the .so
+* Run `make` as usual to generate a shared object file, and install the .so. The 
+  STATIC=1 build fails with a problem linking against boot-filesystems, so remember 
+  that the generated binary is linked against system boost and will need to be 
+  recompiled if the boost version changes.
 
     ~~~
     $ make
-    $ sudo cp crtbeginT.o crtbeginS.o
-    $ sudo cp crtbeginT.orig.o crtbeginT.o
-    $ sudo rm crtbeginT.orig.o
     $ cp /usr/lib/libmsp430.so libmsp430.so.bak
     $ sudo cp libmsp430.so /usr/lib/
     ~~~
@@ -257,4 +250,3 @@ Installing 64-bit libmsp430.so v3
 
 ^[To convert this file to `pdf`, use `pandoc README.md -o README.pdf`. See 
 <http://johnmacfarlane.net/pandoc/README.html> for further information]
-
