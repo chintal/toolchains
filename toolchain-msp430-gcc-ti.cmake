@@ -3,7 +3,7 @@ include(CMakeForceCompiler)
 
 # Add the location of your "toolchains" folder to the module path.
 list(APPEND CMAKE_MODULE_PATH "/home/chintal/code/toolchains")
-SET(PLATFORM_PACKAGES_PATH "/home/chintal/code/toolchains/packages")
+SET(PLATFORM_PACKAGES_PATH "/home/chintal/code/toolchains/packages/msp430")
 list(APPEND CMAKE_MODULE_PATH "${PLATFORM_PACKAGES_PATH}/lib/cmake")
 list(APPEND CMAKE_PREFIX_PATH "${PLATFORM_PACKAGES_PATH}/lib/cmake")
 INCLUDE_DIRECTORIES("${PLATFORM_PACKAGES_PATH}/include ${INCLUDE_DIRECTORIES}")
