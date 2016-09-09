@@ -60,10 +60,14 @@ set(AVR_OPT_LEVEL 	"0" CACHE STRING "AVR GCC OPT LEVEL")
 set(AVR_WARN_PROFILE "-Wall -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wsign-compare -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wunused"
 				CACHE STRING "AVR GCC WARNINGS")	
 
-set(AVR_OPTIONS 	"-g -fdata-sections -ffunction-sections -fverbose-asm -std=gnu11" 
-				CACHE STRING "AVR GCC OPTIONS")
+set(AVR_DISABLED_BUILTINS   "-fno-builtin-printf -fno-builtin-sprintf"
+                CACHE STRING "AVR GCC Disabled Builtins")
 
-set(CMAKE_C_FLAGS 	"${AVR_WARN_PROFILE} ${AVR_OPTIONS} -O${AVR_OPT_LEVEL} -DGCC_AVR" CACHE STRING "C Flags")
+set(AVR_OPTIONS     "-g -fdata-sections -ffunction-sections -fverbose-asm -std=gnu11 ${AVR_DISABLED_BUILTINS}" 
+                CACHE STRING "AVR GCC OPTIONS")
+
+set(CMAKE_C_FLAGS 	"${AVR_WARN_PROFILE} ${AVR_OPTIONS} -O${AVR_OPT_LEVEL} -DGCC_AVR" 
+                CACHE STRING "AVR GCC C Flags")
 
 set(CMAKE_SHARED_LINKER_FLAGS 	"-Wl,--gc-sections -Wl,--print-gc-sections"
 					CACHE STRING "Linker Flags")

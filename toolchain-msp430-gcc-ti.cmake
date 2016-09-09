@@ -71,7 +71,10 @@ set(MSPGCC_OPT_LEVEL 	"0" CACHE STRING "MSPGCC OPT LEVEL")
 set(MSPGCC_WARN_PROFILE "-Wall -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wsign-compare -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wunused"
 				CACHE STRING "MSPGCC WARNINGS")	
 
-set(MSPGCC_OPTIONS 	"-g -fdata-sections -ffunction-sections -fverbose-asm" 
+set(MSPGCC_DISABLED_BUILTINS   "-fno-builtin-printf -fno-builtin-sprintf"
+                CACHE STRING "AVR GCC Disabled Builtins")				
+
+set(MSPGCC_OPTIONS 	"-g -fdata-sections -ffunction-sections -fverbose-asm ${MSPGCC_DISABLED_BUILTINS}" 
 				CACHE STRING "MSPGCC OPTIONS")
 
 set(CMAKE_C_FLAGS 	"${MSPGCC_WARN_PROFILE} ${MSPGCC_OPTIONS} -O${MSPGCC_OPT_LEVEL}  -DGCC_MSP430" CACHE STRING "C Flags")
