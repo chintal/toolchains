@@ -247,7 +247,38 @@ Installing 64-bit libmsp430.so v3.8
     $ sudo cp libmsp430.so /usr/lib/
     ~~~
 
+Installing python-msp430-tools and using the MSP430 USB BSL
+-----------------------------------------------------------
 
+MSP430s hve built-in bootloaders on their ROM which can be used to write to 
+their flash. The USB MSP430s, such as the msp430f5529, around which a launchpad
+is also available, make this bootloader available over a HID endpoint using the 
+USB peripheral. 
+
+The included Python firmware downloader in the USB Developers Pack doesn't 
+seem to work, and doesn't actually seem to add much value even if it does. 
+The firmware downloader tool is based on the open-source (and unmaintained) 
+`python-msp430-tools`, which can be used directly.
+
+The tools are available on PyPI at v0.6, though the setup script doesn't 
+actually work. v0.7, avaialble from the repository, should be installed instead.
+
+    sudo pip install -e bzr+lp:python-msp430-tools#egg=python-msp430-tools
+
+Once installed, the tools can be used from the command line. Note that prior 
+steps are needed to put the MSP430 into the BSL mode. The simplest way to do this
+for the USB MSP430s is applying PUR during a reset. Refer to TI documentation for
+other options and more detail. Writing to the device looks like :
+    
+    sudo python -m msp430.bsl5.hid -i elf -eErw application/firmware-msp430f5529.elf -PVv
+    
+Further details and command line options are available at 
+<https://pythonhosted.org/python-msp430-tools/commandline_tools.html#msp430-bsl5>
+
+Root access (`sudo`) is required on Ubuntu/Linux for the application to obtain
+hidraw access to the USB device. There are probably some `udev` rules that can 
+be installed to avoid the need for previlege escalation every time you want to 
+write to the device.
 
 ^[To convert this file to `pdf`, use `pandoc README.md -o README.pdf`. See 
 <http://johnmacfarlane.net/pandoc/README.html> for further information]
