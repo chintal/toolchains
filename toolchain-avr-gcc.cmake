@@ -40,8 +40,8 @@ FIND_PROGRAM(AVR_NM		    ${TOOLCHAIN_PREFIX}-nm)
 FIND_PROGRAM(AVR_DUDE	    avrdude)
 
 # Since the compiler needs an -mmcu flag to do anything, checks need to be bypassed
-CMAKE_FORCE_C_COMPILER(${AVR_CC} 	GNU)
-CMAKE_FORCE_CXX_COMPILER(${AVR_CXX} 	GNU)
+CMAKE_C_COMPILER(${AVR_CC} 	GNU)
+CMAKE_CXX_COMPILER(${AVR_CXX} 	GNU)
 
 set(AS 		${AVR_AS} CACHE STRING "AS Binary")
 set(AR 		${AVR_AR} CACHE STRING "AR Binary")
