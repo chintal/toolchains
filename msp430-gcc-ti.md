@@ -19,18 +19,27 @@ Installing the MSP430-GCC-TI toolchain
   install to system folders (installing to /opt)
     
     ~~~
-    $ chmod a+x msp430-gcc-full-linux-installer-4.1.0.0.run
-    $ sudo ./msp430-gcc-full-linux-installer-4.1.0.0.run
+    $ chmod a+x msp430-gcc-full-linux-x64-installer-5.1.1.0.run
+    $ sudo ./msp430-gcc-full-linux-x64-installer-5.1.1.0.run
     ~~~
     
 * Install the toolchain. Recommended location is `/opt/ti/msp430/gcc` unless you 
   have a good reason to install it elsewhere.
 
+* `mspdebug` isn't installed with the toolchain, and should be installed 
+  separately. Beware that mismatched versions of `mspdebug` and `libmsp430.so`
+  can result in silent failure. While there will be no loud errors, you might
+  see an inability to program the device. Make sure that whatever version of 
+  `mspdebug` and `libmsp430.so` you're using work as expected. The versions 
+  described presently work with the latest mspdebug release (v0.25) from 
+  <https://github.com/dlbeer/mspdebug>, while they don't with the version that
+  currently ships with Ubuntu (v0.22).
+
 * Use the `toolchain-msp430-gcc-ti.cmake` toolchain file for cmake. The system
   specific changes that may need to be made are : 
     - `MSP430_TI_COMPILER_FOLDER` : Path of TI GCC installation
     - `mspdebug` location etc. should be crosschecked, since TI gcc installation
-      does not install `mspdebug`
+      does not install `mspdebug`.
     - Set the correct `CMAKE_MODULE_PATH` (to your toolchains folder) so that 
       cmake can find toolchains/Platforms.
 
@@ -40,15 +49,37 @@ Installing the MSP430-GCC-TI toolchain
     export PATH="/opt/ti/msp430/gcc/bin:${PATH}"
     ~~~
 
-
 Debugging using the LP5529 on-board device:
 -------------------------------------------
 
 * Program the device as usual by `make install` or `make firmware-<device>-load`.
 
-* Run `gdb_agent_console`, which should find the debugger and prepare for the 
-  connection. If you happen to have more than one `gdb_agent_console` in your
-  `PATH`, make sure to use the correct one (located in `/opt/ti/gcc/bin`)
+* Use `mspdebug` to connect to the device and provide a gdb remote stub. 
+
+    ~~~
+    $ mspdebug tilib
+    ...
+    Chip ID data:                                                                                          
+    ver_id:         2955
+    ver_sub_id:     0000
+    revision:       18
+    fab:            55
+    self:           5555
+    config:         12
+    fuses:          55
+    Device: MSP430F5529
+    ...
+    (mspdebug) gdb
+    Bound to port 2000. Now waiting for connection...
+    ~~~
+
+* Earlier versions (Upto 4.0.1 or so) of the toolchain used `gdb_agent_console` 
+  instead of `mspdebug`. While this approach seems to not work anymore (as of 5.1.1),
+  if you have trouble using `mspdebug`, you can perhaps try the `gdb_agent_console` 
+  approach. This command should find the debugger and prepare for the connection. 
+  If you happen to have more than one `gdb_agent_console` in your `PATH`, make 
+  sure to use the correct one (located in `/opt/ti/gcc/bin`). You may need to 
+  `chmod +x gdb_agent_console` if you get a permission denied error.
 
     ~~~
     $ gdb_agent_console /opt/ti/msp430/gcc/msp430.dat
@@ -61,10 +92,8 @@ Debugging using the LP5529 on-board device:
     $ cd <build_folder>
     $ msp430-elf-gdb application/firmware-msp430f5529.elf 
     ... [GDB initialization output]
-    (gdb) target remote :55000
-    ... [Wait for firmware update]
-    (gdb) target remote :55000 
-    Remote debugging using :55000
+    (gdb) target remote :2000
+    Remote debugging using :2000
     0x000044e4 in __crt0_start ()
     (gdb) 
     ~~~
@@ -73,47 +102,7 @@ Debugging using the LP5529 on-board device:
   though at some point they should be looked into. 
 
 * Ideally, `insight` should be able to run as well. The python errors might be related. 
-  Some TI docs suggest the `GUI`, presumably `insight`, is supported on windows only.
-
-* Firmware issue : `mspdebug` and `msp430-elf-gdb` seem to require different `ezFET`
-  firmware versions. This is fairly problematic, resulting in the need to reflash the 
-  programmer when switching between programming and debugging sessions. Not only is this
-  painfully slow, constantly reflashing the device is likely to reduce it's life. A way to 
-  program using `msp430-elf-gdb` would probably be nicer. For now, perhaps use the 
-  debugger only when absolutely necessary, and program into RAM during most of debugging
-  using `msp430-elf-gdb` instead of by `make install`, `make firmware-load`, etc which use
-  `mspdebug`. Another alternative is to roll your own `libmsp430.so` from TI sources. See 
-  the section `Installing 64-bit libmsp430.so v3` for instructions to build a 64-bit 
-  version of `libmsp430.so` from TI's sources. Using this version of the driver allows you 
-  to use the same firmware for both `mspdebug` and `msp430-elf-gdb`.
-
-* The ability to `detach` and let the process go on isn't there, or atleast isn't 
-  immediately apparant. On detach, the target seems to be held in reset until power
-  is cycled. There are ways to do this with `mspdebug`, so an option could be to let
-  it die and then respawn it using `mspdebug`. ~~Beware of the aforementioned firmware 
-  issue.~~ Make sure to use the new version of the firmware to avoid having to upgrade 
-  firmware on each switch.
-
-    ~~~
-    $ gdb_agent_console /opt/ti/gcc/msp430.dat 
-    Successfully configured /opt/ti/gcc/msp430.dat
-    CPU Name             Port
-    --------             ----
-    MSP430              :55000
-
-    Starting all cores
-    CPU Name             Status
-    --------             ------
-    MSP430               Waiting for client
-    MSP430               Client connected...Connecting to Target
-    Found USB FET at ttyACM0
-    Target connected...Starting server
-    MSP430               Client disconnected...Stopping server
-    Disconnecting from Target
-    MSP430               Waiting for client
-    ^C
-    $ mspdebug -n tilib --allow-fw-update "run"
-    ~~~
+  Some obscure TI doc suggests the `GUI`, presumably `insight`, is supported on windows only.
 
 * Some sample commands run on firmware that's built with TI's `driverlib`:
 
@@ -184,14 +173,13 @@ Debugging using the LP5529 on-board device:
   the primary build outputs in their respective build folder.
 
 
-Installing 64-bit libmsp430.so v3.8
------------------------------------
+Installing 64-bit libmsp430.so v3.11
+------------------------------------
 
-* Get slac460r.zip from TI, containing MSP430.DLLv3.08.000.002 Open Source version, 
-  Released 02/24/2016
+* Get slac460w.zip from TI, containing MSP430.DLLv3.11.000.001 Open Source version, 
+  Released 16/11/2017
 
     <http://processors.wiki.ti.com/index.php/MSPDS_Open_Source_Package>
-    
 
 * According to the install docs, boost with BOOST_THREAD_PATCH is needed. Install
   libboost-thread-dev and hope for the best. Building boost itself is a pain. Version
@@ -199,9 +187,20 @@ Installing 64-bit libmsp430.so v3.8
   is probably a good idea).
 
     ~~~
-    $ sudo aptitude install libboost-thread-dev
-    $ sudo aptitude install libboost-filesystem-dev
-    $ sudo aptitude install libusb-1.0-0-dev libudev-dev
+    $ sudo apt install libboost-thread-dev
+    $ sudo apt install libboost-filesystem-dev
+    $ sudo apt install libusb-1.0-0-dev libudev-dev
+    ~~~
+
+* The v3.11 version has the following additional dependencies, which don't seem to be 
+  listed in the install docs but does cause failure during compile time. Maybe install
+  them later on once compile fails if you have concerns about installing unnecessary 
+  stuff.
+
+    ~~~
+    $ sudo apt install libboost-date-time-dev
+    $ sudo apt install libboost-chrono-dev
+    $ sudo apt install libboost-thread-dev
     ~~~
 
 * For hidapi, required version is 0.8.0-rc1. Though Ubuntu 16.04 version is 
@@ -229,23 +228,32 @@ Installing 64-bit libmsp430.so v3.8
     $ cd MSPDebugStack
     ~~~
     
-* Copy the necessary files to the MSPDebug ThirdParty folder. 
+* Copy the necessary hidapi files to the MSPDebug ThirdParty folder. 
     - `hidapi/hidapi.h` to `ThirdPary/include` 
     - `libusb/hid.o` to `ThirdParty/lib64`
 
 * Edit the Makefile to point to the correct hidapi object. 
     - Replace `HIDOBJ := $(LIBTHIRD)/hid-libusb.o` with `HIDOBJ := $(LIBTHIRD)/hid.o`
+
+* The v3.11 version as shipped does not compile. This has to do with a licensing issue
+  that was very poorly handled by TI. The fastest way to make the compile work is to 
+  ignore the licensing issue and link against the GPLv3 srecord project. This can be 
+  done by editing `DLL430_v3/src/TI/DLL430/UpdateManagerFet.cpp`, and uncomment the 
+  line `//#define FPGA_UPDATE`.
     
 * Run `make` as usual to generate a shared object file, and install the .so. The 
-  STATIC=1 build fails with a problem linking against boot-filesystems, so remember 
+  STATIC=1 build fails with a problem linking against boost-filesystems, so remember 
   that the generated binary is linked against system boost and will need to be 
   recompiled if the boost version changes.
 
     ~~~
     $ make
-    $ cp /usr/lib/libmsp430.so libmsp430.so.bak
-    $ sudo cp libmsp430.so /usr/lib/
+    $ sudo make install
     ~~~
+
+* `mspdebug` and `tilib` seem to have trouble locating the `libmsp430.so` binary. 
+  One workaround is to add `export LD_PRELOAD="/usr/local/lib/libmsp430.so" to 
+  `~/.bashrc` to make this work.
 
 Installing python-msp430-tools and using the MSP430 USB BSL
 -----------------------------------------------------------
