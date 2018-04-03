@@ -1,4 +1,5 @@
-INCLUDE(common.cmake)
+
+INCLUDE("${TOOLCHAINS_PATH}/Platform/common.cmake")
 
 # Wrapper around ADD_EXECUTABLE, which adds the necessary -mmcu flags and
 # sets up builds for multiple devices. Also creates targets to generate 

@@ -21,71 +21,73 @@ set(CMAKE_SYSTEM_NAME avr-gcc)
 # Compiler and related toochain configuration
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-SET(AVR_LIBC_FOLDER	        /usr/lib/avr)
-SET(AVR_INCLUDE_FOLDER	    ${AVR_LIBC_FOLDER}/include)
-SET(TOOLCHAIN_PREFIX		avr)
+SET(AVR_LIBC_FOLDER         /usr/lib/avr)
+SET(AVR_INCLUDE_FOLDER      ${AVR_LIBC_FOLDER}/include)
+SET(TOOLCHAIN_PREFIX        avr)
 
 INCLUDE_DIRECTORIES(${AVR_INCLUDE_FOLDER} ${INCLUDE_DIRECTORIES})
 
 # This can be skipped to directly set paths below, or augmented with hints
 # and such. See cmake docs of FIND_PROGRAM for details.
-FIND_PROGRAM(AVR_CC		    ${TOOLCHAIN_PREFIX}-gcc)
-FIND_PROGRAM(AVR_CXX		${TOOLCHAIN_PREFIX}-g++)
-FIND_PROGRAM(AVR_AR		    ${TOOLCHAIN_PREFIX}-ar)
-FIND_PROGRAM(AVR_AS		    ${TOOLCHAIN_PREFIX}-as)
-FIND_PROGRAM(AVR_OBJDUMP	${TOOLCHAIN_PREFIX}-objdump)
-FIND_PROGRAM(AVR_OBJCOPY	${TOOLCHAIN_PREFIX}-objcopy)
-FIND_PROGRAM(AVR_SIZE	    ${TOOLCHAIN_PREFIX}-size)
-FIND_PROGRAM(AVR_NM		    ${TOOLCHAIN_PREFIX}-nm)
-FIND_PROGRAM(AVR_DUDE	    avrdude)
+FIND_PROGRAM(AVR_CC         ${TOOLCHAIN_PREFIX}-gcc)
+FIND_PROGRAM(AVR_CXX        ${TOOLCHAIN_PREFIX}-g++)
+FIND_PROGRAM(AVR_AR         ${TOOLCHAIN_PREFIX}-ar)
+FIND_PROGRAM(AVR_AS         ${TOOLCHAIN_PREFIX}-as)
+FIND_PROGRAM(AVR_OBJDUMP    ${TOOLCHAIN_PREFIX}-objdump)
+FIND_PROGRAM(AVR_OBJCOPY    ${TOOLCHAIN_PREFIX}-objcopy)
+FIND_PROGRAM(AVR_SIZE       ${TOOLCHAIN_PREFIX}-size)
+FIND_PROGRAM(AVR_NM         ${TOOLCHAIN_PREFIX}-nm)
+FIND_PROGRAM(AVR_DUDE       avrdude)
 
 # Since the compiler needs an -mmcu flag to do anything, checks need to be bypassed
-set(CMAKE_C_COMPILER 	${AVR_CC} CACHE STRING "C Compiler")
-set(CMAKE_CXX_COMPILER	${AVR_CXX} CACHE STRING "C++ Compiler")
+SET(CMAKE_C_COMPILER    ${AVR_CC}      CACHE STRING "C Compiler")
+SET(CMAKE_CXX_COMPILER  ${AVR_CXX}     CACHE STRING "C++ Compiler")
 
-set(AS 		${AVR_AS} CACHE STRING "AS Binary")
-set(AR 		${AVR_AR} CACHE STRING "AR Binary")
-set(OBJCOPY 	${AVR_OBJCOPY} CACHE STRING "OBJCOPY Binary")
-set(OBJDUMP 	${AVR_OBJDUMP} CACHE STRING "OBJDUMP Binary")
-set(SIZE 	${AVR_SIZE} CACHE STRING "SIZE Binary") 
+SET(AS                  ${AVR_AS}      CACHE STRING "AS Binary")
+SET(AR                  ${AVR_AR}      CACHE STRING "AR Binary")
+SET(OBJCOPY             ${AVR_OBJCOPY} CACHE STRING "OBJCOPY Binary")
+SET(OBJDUMP             ${AVR_OBJDUMP} CACHE STRING "OBJDUMP Binary")
+SET(SIZE                ${AVR_SIZE}    CACHE STRING "SIZE Binary") 
 
 IF(NOT CMAKE_BUILD_TYPE)
-	SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
-		"Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
-		FORCE)
+    SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
+        "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
+        FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
-set(AVR_OPT_LEVEL 	"0" CACHE STRING "AVR GCC OPT LEVEL")
+SET(AVR_OPT_LEVEL       "0" 
+                CACHE STRING "Optimization Level")
 
-set(AVR_WARN_PROFILE "-Wall -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wsign-compare -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wunused"
-				CACHE STRING "AVR GCC WARNINGS")	
+SET(AVR_WARN_PROFILE "-Wall -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wsign-compare -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wunused"
+                CACHE STRING "AVR GCC Warnings")	
 
-set(AVR_DISABLED_BUILTINS   "-fno-builtin-printf -fno-builtin-sprintf"
+SET(AVR_DISABLED_BUILTINS   "-fno-builtin-printf -fno-builtin-sprintf"
                 CACHE STRING "AVR GCC Disabled Builtins")
 
-set(AVR_OPTIONS     "-g -fdata-sections -ffunction-sections -fverbose-asm -std=gnu11 ${AVR_DISABLED_BUILTINS}" 
+SET(AVR_OPTIONS     "-g -fdata-sections -ffunction-sections -fverbose-asm -std=gnu11 ${AVR_DISABLED_BUILTINS}" 
                 CACHE STRING "AVR GCC OPTIONS")
 
-set(CMAKE_C_FLAGS 	"${AVR_WARN_PROFILE} ${AVR_OPTIONS} -O${AVR_OPT_LEVEL} -DGCC_AVR" 
+SET(CMAKE_C_FLAGS   "${AVR_WARN_PROFILE} ${AVR_OPTIONS} -O${AVR_OPT_LEVEL} -DGCC_AVR" 
                 CACHE STRING "AVR GCC C Flags")
 
-set(CMAKE_SHARED_LINKER_FLAGS 	"-Wl,--gc-sections -Wl,--print-gc-sections"
-					CACHE STRING "Linker Flags")
-set(CMAKE_EXE_LINKER_FLAGS 	"-Wl,--gc-sections" 
-					CACHE STRING "Linker Flags")
+SET(CMAKE_SHARED_LINKER_FLAGS 	"-Wl,--gc-sections -Wl,--print-gc-sections"
+                CACHE STRING "Linker Flags")
+
+SET(CMAKE_EXE_LINKER_FLAGS 	"-Wl,--gc-sections" 
+                CACHE STRING "Linker Flags")
 
 # Specify linker command. This is needed to use gcc as linker instead of ld
 # This seems to be the preferred way for MSPGCC atleast, seemingly to avoid
 # linking against stdlib.
 set(CMAKE_CXX_LINK_EXECUTABLE
-	"<CMAKE_C_COMPILER> ${CMAKE_EXE_LINKER_FLAGS} <LINK_FLAGS> <OBJECTS> -o <TARGET> <LINK_LIBRARIES>"
-	CACHE STRING "C++ Executable Link Command")
+    "<CMAKE_C_COMPILER> ${CMAKE_EXE_LINKER_FLAGS} <LINK_FLAGS> <OBJECTS> -o <TARGET> <LINK_LIBRARIES>"
+        CACHE STRING "C++ Executable Link Command")
 
 set(CMAKE_C_LINK_EXECUTABLE ${CMAKE_CXX_LINK_EXECUTABLE}
-	CACHE STRING "C Executable Link Command")
+        CACHE STRING "C Executable Link Command")
 
 # Programmer and related toochain configuration
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-set(PROGBIN 	${AVR_DUDE} CACHE STRING "Programmer Application")
-set(PROGRAMMER	tilib CACHE STRING "Programmer driver")
+set(PROGBIN     ${AVR_DUDE} CACHE STRING "Programmer Application")
+set(PROGRAMMER  tilib CACHE STRING "Programmer driver")
