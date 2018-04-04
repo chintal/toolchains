@@ -25,6 +25,14 @@ IF(DOXYGEN_FOUND)
                         
     ADD_CUSTOM_TARGET(doc       COMMENT "Generating Documenation" VERBATIM
                         DEPENDS doc-build)
+                        
+    SET(DOC_HTML_TARGET "ebs:~/www/doc/${CMAKE_PROJECT_NAME}")
+    ADD_CUSTOM_TARGET(doc-install	
+            rsync -avzh --partial --info=progress2 --delete -e ssh
+            ${DOXYGEN_OUTPUT_DIR}/html/ ${DOC_HTML_TARGET}
+            WORKING_DIRECTORY ${DOXYGEN_OUTPUT_DIR}
+            COMMENT "Publishing Doxygen HTML" VERBATIM
+            DEPENDS doc)
     
 ENDIF(DOXYGEN_FOUND)
 
