@@ -1,11 +1,12 @@
 # To be able to use Force Compiler macros.
 include(CMakeForceCompiler)
 
-# Add the location of your "toolchains" folder to the module path.
-list(APPEND CMAKE_MODULE_PATH "/home/chintal/code/toolchains")
-SET(PLATFORM_PACKAGES_PATH "/home/chintal/code/toolchains/packages/avr")
-list(APPEND CMAKE_MODULE_PATH "${PLATFORM_PACKAGES_PATH}/lib/cmake")
-list(APPEND CMAKE_PREFIX_PATH "${PLATFORM_PACKAGES_PATH}/lib/cmake")
+# Add the location of your "toolchains" folder to the module path
+SET(TOOLCHAINS_PATH             "/home/chintal/code/toolchains")     
+LIST(APPEND CMAKE_MODULE_PATH   ${TOOLCHAINS_PATH})
+SET(PLATFORM_PACKAGES_PATH      "${TOOLCHAINS_PATH}/packages/avr")
+LIST(APPEND CMAKE_MODULE_PATH   "${PLATFORM_PACKAGES_PATH}/lib/cmake")
+LIST(APPEND CMAKE_PREFIX_PATH   "${PLATFORM_PACKAGES_PATH}/lib/cmake")
 INCLUDE_DIRECTORIES("${PLATFORM_PACKAGES_PATH}/include ${INCLUDE_DIRECTORIES}")
 
 SET(SUPPORTED_DEVICES "atmega16;atmega32;atmega644;atmega48;atmega88;atmega168;atmega328" 
