@@ -2,7 +2,7 @@
 
 SET(PROJECT_VERSION     "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}-${PROJECT_VERSION_TWEAK}")
                          
-MESSAGE("Library : ${PROJECT_NAME} ${PROJECT_VERSION}") 
+
 
 IF(CMAKE_TOOLCHAIN_FILE)
     # This is a cross-platform build, and therefore is assumed to be intended for an 
@@ -10,6 +10,8 @@ IF(CMAKE_TOOLCHAIN_FILE)
     SET(CMAKE_INSTALL_PREFIX        ${PLATFORM_PACKAGES_PATH})
     SET(PUBLIC_INCLUDE_DIRECTORY    ${CMAKE_CURRENT_SOURCE_DIR})
     IF(${CMAKE_CURRENT_SOURCE_DIR} STREQUAL ${CMAKE_SOURCE_DIR})
+        # This is library only build. 
+        MESSAGE("Library : ${PROJECT_NAME} ${PROJECT_VERSION}") 
         SET(BUILD_INCLUDE_DIR   ${CMAKE_BINARY_DIR}/include)
         CONFIGURE_FILE(
             "${CMAKE_CURRENT_SOURCE_DIR}/config.h.in"
@@ -18,6 +20,10 @@ IF(CMAKE_TOOLCHAIN_FILE)
         INCLUDE_DIRECTORIES(${BUILD_INCLUDE_DIR} ${INCLUDE_DIRECTORIES})
         INSTALL(FILES "${BUILD_INCLUDE_DIR}/config.h" DESTINATION include/${LIBRARY_NAME})
     ELSE()
+        # This is a firmware integrated build. Ensure the library headers and generated config file ends up in 
+        # the firmware include tree. Lib include folder is symlinked from the src directory. This is messy, 
+        # possibly rickety, probably needs to have a better solution, but for the moment it works.
+        MESSAGE("Integrated Library : ${PROJECT_NAME} ${PROJECT_VERSION}") 
         GET_FILENAME_COMPONENT(PARENT_DIR ${CMAKE_CURRENT_SOURCE_DIR} DIRECTORY)
         FILE(RELATIVE_PATH INCLUDE_PREFIX ${CMAKE_SOURCE_DIR} ${PARENT_DIR})
         SET(BUILD_INCLUDE_DIR  ${CMAKE_BINARY_DIR}/include/${INCLUDE_PREFIX})
@@ -28,4 +34,13 @@ IF(CMAKE_TOOLCHAIN_FILE)
         )
         INCLUDE_DIRECTORIES(${BUILD_INCLUDE_DIR} ${INCLUDE_DIRECTORIES})
     ENDIF()
+ELSE(CMAKE_TOOLCHAIN_FILE)
+    MESSAGE("Host Library : ${PROJECT_NAME} ${PROJECT_VERSION}") 
+    SET(BUILD_INCLUDE_DIR   ${CMAKE_BINARY_DIR}/include)
+    CONFIGURE_FILE(
+        "${CMAKE_CURRENT_SOURCE_DIR}/config.h.in"
+        "${BUILD_INCLUDE_DIR}/config.h"
+    )
+    INCLUDE_DIRECTORIES(${BUILD_INCLUDE_DIR} ${INCLUDE_DIRECTORIES})
 ENDIF(CMAKE_TOOLCHAIN_FILE)
+

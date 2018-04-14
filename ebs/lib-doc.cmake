@@ -27,12 +27,17 @@ IF(DOXYGEN_FOUND)
                         DEPENDS doc-build)
                         
     SET(DOC_HTML_TARGET "ebs:~/www/doc/${CMAKE_PROJECT_NAME}")
+    SET(DOC_HTML_URL "http://ebs.chintal.in/doc/${CMAKE_PROJECT_NAME}")
     ADD_CUSTOM_TARGET(doc-install	
             rsync -avzh --partial --info=progress2 --delete -e ssh
             ${DOXYGEN_OUTPUT_DIR}/html/ ${DOC_HTML_TARGET}
             WORKING_DIRECTORY ${DOXYGEN_OUTPUT_DIR}
             COMMENT "Publishing Doxygen HTML" VERBATIM
             DEPENDS doc)
+            
+    ADD_CUSTOM_COMMAND(TARGET doc-install POST_BUILD 
+                       COMMAND ${CMAKE_COMMAND} -E cmake_echo_color --cyan
+                       "Published Doc HTML to ${DOC_HTML_URL}")
     
 ENDIF(DOXYGEN_FOUND)
 

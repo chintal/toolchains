@@ -68,9 +68,6 @@ IF(NOT CMAKE_BUILD_TYPE)
         FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
-set(MSPGCC_OPT_LEVEL    "0" 
-                CACHE STRING "Optimization Level")
-
 set(MSPGCC_WARN_PROFILE "-Wall -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align -Wsign-compare -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wunused"
                 CACHE STRING "Warnings")
 
@@ -81,7 +78,7 @@ set(MSPGCC_OPTIONS  "-g -fdata-sections -ffunction-sections -fverbose-asm ${MSPG
                 CACHE STRING "Compile Options")
 
                 
-set(CMAKE_C_FLAGS   "${MSPGCC_WARN_PROFILE} ${MSPGCC_OPTIONS} -O${MSPGCC_OPT_LEVEL}  -DGCC_MSP430" 
+set(CMAKE_C_FLAGS   "${MSPGCC_WARN_PROFILE} ${MSPGCC_OPTIONS} -DGCC_MSP430" 
                 CACHE STRING "C Flags")
 
 set(CMAKE_SHARED_LINKER_FLAGS 	"-Wl,--gc-sections -Wl,--print-gc-sections"
