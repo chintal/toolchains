@@ -84,5 +84,5 @@ At the end of this, you should have the gcc (v4.6.1) toolchain with the propelle
   - spin2cpp
   - spinsim
 
-These instructions would probably work as is for the GCC 6 build as well, though I haven't check. Note that having both GCC 4 and GCC 6 installed simultaneously is probably not a good idea, and you will have to play around with $PATH to switch between them, besides having to make sure they are both installed into separate folders since the executable names are the same.
+These instructions would probably work as is for the GCC 6 build as well, though I haven't checked. Note that having both GCC 4 and GCC 6 installed simultaneously is probably not a good idea, and you will have to play around with $PATH to switch between them, besides having to make sure they are both installed into separate folders since the executable names are the same.
 
