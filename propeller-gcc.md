@@ -7,18 +7,13 @@ Toolchain Location
 
 This is going to be a toolchain with a number of tools, most of which need manual installations. In order to try to maintain some degree of sanity, we're going to push as much as possible into a single folder which lives outside the usual folders. Consider the choice of permissions to give to these folders. The commands here expect you to give yourself ownership over the installed files. A more traditional approach would leave ownership to root, with read permissions set for the appropriate user / group. Whatever you decide, keep permissions in mind when you execute commands that copy files into that folder. 
 
-    ~~~
     $ sudo mkdir -p /opt/parallax/propeller
     $ sudo chown -R [username]:[group] /opt/parallax
-    $ mkdir /opt/parallax/propeller/openspin
     $ mkdir /opt/parallax/propeller/bin
-    ~~~
 
 We'll also add the bin folder to system `$PATH`, so that the tools are readily available. To do this, add the following line to `~/.bashrc`. If you ever need the propeller tools to disappear from system $PATH, remove or comment this line out and restart the shell. 
 
-    ~~~
     export PATH="/opt/parallax/propeller/bin:$PATH"
-    ~~~
 
 Spin is a langauge designed specifically for Propeller by the same chap who designed the processor. While this toolchain should (hopefully) provide a full gcc toolchain capable of handling C and C++ code, it probably is a good idea to have a Spin toolchain available as well. 
 
@@ -38,25 +33,20 @@ NOTE : The binary distribution from TeamCity used for the GCC installation inclu
 
 Download the latest release from the link above and untar it somewhere. Run make to build the compiler. Note that the repository only explicitly lists GCC 4.6 and 4.8 as acceptable GCC versions, though it does say later versions should be fine. For the moment, we assume it compiles fine with system GCC (at the time of this writing 7.3.0-16ubuntu3).
   
-    ~~~
     $ tar xvzf OpenSpin-1.00.78.tar.gz
     $ cd OpenSpin-1.00.78/
     $ make
-    ~~~
 
 This generates build files in a folder called `build`. We move these files into the toolchain folder we created earlier and create a symlink to the compiler binary to expose it on the $PATH.
 
-    ~~~
     $ cd build
+    $ mkdir /opt/parallax/propeller/openspin
     $ mv * /opt/parallax/propeller/openspin
     $ ln -s /opt/parallax/propeller/openspin/openspin /opt/parallax/propeller/bin/openspin 
-    ~~~
 
 This should put openspin into path and allow it to be used directly.
 
-    ~~~
     $ openspin
-    ~~~
 
 There is a bweir fork of OpenSpin. I'm not sure what it does differently. It seems to also do wildly different release numbering. <https://github.com/bweir/OpenSpin>
 
@@ -82,18 +72,17 @@ GCC 4.6.1 ("Official")
 
 Download the GCC4 binary from <https://david.zemon.name/PropWare/#/related-links>. Untar it somewhere. You will see that there is a parallax folder created, which contains the toolchain entirely within it. We're just going to move the toolchain wholesale into our toolchain folder. If any of those folders existed previously, such as a bin folder from an OpenSpin install, make sure to move the contents of that folder to the correct place as well. These should be immediately apparant by files left in the source tree after the first move is completed.
 
-    ~~~
     $ tar xvzf propellergcc-alpha_v1_9_0-gcc4-linux-x64.tar.gz
     $ mv parallax/* /opt/parallax/propeller/
     $ mv parallax/bin/* /opt/parallax/propeller/bin/
-    ~~~
 
 At the end of this, you should have the gcc (v4.6.1) toolchain with the propeller-elf- prefix installed and in your $PATH. The following programs will also now exist on your path :
-    - openspin
-    - gdbstub
-    - propeller-load
-    - spin2cpp
-    - spinsim
+  
+  - openspin
+  - gdbstub
+  - propeller-load
+  - spin2cpp
+  - spinsim
 
 These instructions would probably work as is for the GCC 6 build as well, though I haven't check. Note that having both GCC 4 and GCC 6 installed simultaneously is probably not a good idea, and you will have to play around with $PATH to switch between them, besides having to make sure they are both installed into separate folders since the executable names are the same.
 
