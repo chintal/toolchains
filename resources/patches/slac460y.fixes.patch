@@ -1,0 +1,174 @@
+From aa1950d9629748856f187cad1782a1495b7a1702 Mon Sep 17 00:00:00 2001
+From: Chintalagiri Shashank <shashank.chintalagiri@gmail.com>
+Date: Wed, 12 Jun 2019 02:15:06 +0530
+Subject: [PATCH] Fixes
+
+---
+ DLL430_v3/src/DLL430_OldApiV3.cpp                  |  8 ++++----
+ DLL430_v3/src/TI/DLL430/UpdateManagerFet.cpp       |  2 +-
+ DLL430_v3/src/TI/DLL430/UsbCdcIoChannel.cpp        | 10 +++++++---
+ DLL430_v3/src/TI/DLL430/UsbCdcIoChannel.h          |  6 +++++-
+ .../MSPBSL_PhysicalInterfaceSerialUART.cpp         | 14 +++++++-------
+ .../MSPBSL_PhysicalInterfaceUSB.cpp                |  2 +-
+ 6 files changed, 25 insertions(+), 17 deletions(-)
+
+diff --git a/DLL430_v3/src/DLL430_OldApiV3.cpp b/DLL430_v3/src/DLL430_OldApiV3.cpp
+index f333ed1..8df884d 100644
+--- a/DLL430_v3/src/DLL430_OldApiV3.cpp
++++ b/DLL430_v3/src/DLL430_OldApiV3.cpp
+@@ -330,7 +330,7 @@ bool DLL430_OldApiV3::loadDeviceDb(const char* file)
+ 	catch (const std::runtime_error& e)
+ 	{
+ #ifndef NDEBUG
+-		ofstream("xml_error.log") << e.what() << endl;
++		std::ofstream("xml_error.log") << e.what() << endl;
+ #endif
+ 		log(LogTarget::ERR, DEVICE_DB_ERR, e.what());
+ 		return false;
+@@ -356,7 +356,7 @@ bool DLL430_OldApiV3::DumpDeviceDb(const char* file)
+ 	catch (const std::runtime_error& e)
+ 	{
+ #ifndef NDEBUG
+-		ofstream("xml_error.log") << e.what() << endl;
++		std::ofstream("xml_error.log") << e.what() << endl;
+ #endif
+ 		log(LogTarget::ERR, DEVICE_DB_ERR, e.what());
+ 		return false;
+@@ -3865,7 +3865,7 @@ bool DLL430_OldApiV3::FET_FwUpdate(
+ #endif
+ 					UpdateLog.append("\n---------------------Firmware upate end--------------------------\n");
+ 
+-					ofstream(logfile.c_str(), ios::app | ios::out) << UpdateLog;
++					std::ofstream(logfile.c_str(), ios::app | ios::out) << UpdateLog;
+ 				}
+ 			}
+ 
+@@ -3907,7 +3907,7 @@ bool DLL430_OldApiV3::FET_FwUpdate(
+ #endif
+ 						UpdateLog.append("\n---------------------Firmware upate end--------------------------\n");
+ 
+-						ofstream(logfile.c_str(), ios::app | ios::out) << UpdateLog;
++						std::ofstream(logfile.c_str(), ios::app | ios::out) << UpdateLog;
+ 					}
+ 				}
+ 			}
+diff --git a/DLL430_v3/src/TI/DLL430/UpdateManagerFet.cpp b/DLL430_v3/src/TI/DLL430/UpdateManagerFet.cpp
+index cb8ea08..346c8ef 100644
+--- a/DLL430_v3/src/TI/DLL430/UpdateManagerFet.cpp
++++ b/DLL430_v3/src/TI/DLL430/UpdateManagerFet.cpp
+@@ -75,7 +75,7 @@
+ #include "../../../../Bios/include/MSP_FetDcdcControllerV2x.h"
+ 
+ //Removed due to license limitations
+-//#define FPGA_UPDATE
++#define FPGA_UPDATE
+ 
+ #ifdef FPGA_UPDATE
+ #include "../../../../Bios/include/MSP_FetFpgaHal.h"
+diff --git a/DLL430_v3/src/TI/DLL430/UsbCdcIoChannel.cpp b/DLL430_v3/src/TI/DLL430/UsbCdcIoChannel.cpp
+index ecb21fb..e06caca 100644
+--- a/DLL430_v3/src/TI/DLL430/UsbCdcIoChannel.cpp
++++ b/DLL430_v3/src/TI/DLL430/UsbCdcIoChannel.cpp
+@@ -375,7 +375,11 @@ std::string UsbCdcIoChannel::retrieveSerialFromId(const std::string& id)
+ 
+ bool UsbCdcIoChannel::openPort()
+ {
+-	ioService = new boost::asio::io_service;
++	#if BOOST_VERSION < 106600
++ 	  ioService = new boost::asio::io_service;
++	#else
++ 	  ioService = new boost::asio::io_context;
++ 	#endif
+ 	port = new boost::asio::serial_port(*ioService);
+ 	timer = new boost::asio::deadline_timer(*ioService);
+ 
+@@ -384,7 +388,7 @@ bool UsbCdcIoChannel::openPort()
+ 		int retry = 5;
+ 		while (ec && --retry )
+ 		{
+-			this_thread::sleep_for(chrono::milliseconds(5));
++			this_thread::sleep_for(std::chrono::milliseconds(5));
+ 			ec = port->open(portInfo.path, ec);
+ 		}
+ 
+@@ -409,7 +413,7 @@ void UsbCdcIoChannel::retrieveStatus()
+ 	{
+ 		openPort();
+ 		//Seeing issues on some platforms (eg. Ubuntu) when port is immediately closed again
+-		this_thread::sleep_for(chrono::milliseconds(100));
++		this_thread::sleep_for(std::chrono::milliseconds(100));
+ 		close();
+ 	}
+ }
+diff --git a/DLL430_v3/src/TI/DLL430/UsbCdcIoChannel.h b/DLL430_v3/src/TI/DLL430/UsbCdcIoChannel.h
+index 3ea4c4f..3715048 100644
+--- a/DLL430_v3/src/TI/DLL430/UsbCdcIoChannel.h
++++ b/DLL430_v3/src/TI/DLL430/UsbCdcIoChannel.h
+@@ -73,7 +73,11 @@ namespace TI
+ 
+ 		private:
+ 			std::vector<uint8_t> inputBuffer;
+-			boost::asio::io_service* ioService;
++			#if BOOST_VERSION < 106600
++ 	                        boost::asio::io_service* ioService;
++			#else
++				boost::asio::io_context* ioService;
++			#endif
+ 			boost::asio::serial_port* port;
+ 			boost::asio::deadline_timer* timer;
+ 			ComState comState;
+diff --git a/ThirdParty/BSL430_DLL/BSL430_DLL/Physical_Interfaces/MSPBSL_PhysicalInterfaceSerialUART.cpp b/ThirdParty/BSL430_DLL/BSL430_DLL/Physical_Interfaces/MSPBSL_PhysicalInterfaceSerialUART.cpp
+index 3efa8a2..e6d9112 100644
+--- a/ThirdParty/BSL430_DLL/BSL430_DLL/Physical_Interfaces/MSPBSL_PhysicalInterfaceSerialUART.cpp
++++ b/ThirdParty/BSL430_DLL/BSL430_DLL/Physical_Interfaces/MSPBSL_PhysicalInterfaceSerialUART.cpp
+@@ -193,27 +193,27 @@ void MSPBSL_PhysicalInterfaceSerialUART::invokeBSL(uint16_t method)
+     
+ 	port->set_option(RESETControl(LOW_SIGNAL));
+ 	port->set_option(TESTControl(LOW_SIGNAL));
+-	this_thread::sleep_for(chrono::milliseconds(10));
++	this_thread::sleep_for(std::chrono::milliseconds(10));
+ 	port->set_option(TESTControl(HIGH_SIGNAL));
+-	this_thread::sleep_for(chrono::milliseconds(10));
++	this_thread::sleep_for(std::chrono::milliseconds(10));
+ 	port->set_option(TESTControl(LOW_SIGNAL));
+-	this_thread::sleep_for(chrono::milliseconds(10));
++	this_thread::sleep_for(std::chrono::milliseconds(10));
+ 	port->set_option(TESTControl(HIGH_SIGNAL));
+-	this_thread::sleep_for(chrono::milliseconds(10));
++	this_thread::sleep_for(std::chrono::milliseconds(10));
+ 	if( method == STANDARD_INVOKE )
+ 	{
+ 	  port->set_option(RESETControl(HIGH_SIGNAL));
+-	  this_thread::sleep_for(chrono::milliseconds(10));
++	  this_thread::sleep_for(std::chrono::milliseconds(10));
+ 	  port->set_option(TESTControl(LOW_SIGNAL));
+ 	}
+ 	else if ( method == BSL_XXXX_INVOKE )
+ 	{
+ 	  port->set_option(TESTControl(LOW_SIGNAL));
+-	  this_thread::sleep_for(chrono::milliseconds(10));
++	  this_thread::sleep_for(std::chrono::milliseconds(10));
+ 	  port->set_option(RESETControl(HIGH_SIGNAL));
+ 	}
+ 	
+-	this_thread::sleep_for(chrono::milliseconds(250));
++	this_thread::sleep_for(std::chrono::milliseconds(250));
+ 	
+ }
+ 
+diff --git a/ThirdParty/BSL430_DLL/BSL430_DLL/Physical_Interfaces/MSPBSL_PhysicalInterfaceUSB.cpp b/ThirdParty/BSL430_DLL/BSL430_DLL/Physical_Interfaces/MSPBSL_PhysicalInterfaceUSB.cpp
+index 782f13d..1d55a37 100644
+--- a/ThirdParty/BSL430_DLL/BSL430_DLL/Physical_Interfaces/MSPBSL_PhysicalInterfaceUSB.cpp
++++ b/ThirdParty/BSL430_DLL/BSL430_DLL/Physical_Interfaces/MSPBSL_PhysicalInterfaceUSB.cpp
+@@ -189,7 +189,7 @@ uint16_t MSPBSL_PhysicalInterfaceUSB::RX_Bytes( uint8_t* buf, uint16_t numBytes
+ 			return ERROR_READING_DATA; 
+ 		}
+ 
+-		this_thread::sleep_for(chrono::milliseconds(500));
++		this_thread::sleep_for(std::chrono::milliseconds(500));
+ 	}
+ 
+ 	return 0;
+-- 
+2.20.1
+
